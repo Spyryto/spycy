@@ -1,0 +1,20 @@
+
+//===|   Dependencies   |=====================================================//
+
+// None
+
+//===|   Definitions   |======================================================//
+
+@function string( $value ) {
+	@return "" + $value;
+}
+
+//===|   Tests / Examples   |=================================================//
+
+@include suite(
+	test( 'string from number',
+		string( 1 ),
+		"1"
+	)
+);
+

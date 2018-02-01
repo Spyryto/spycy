@@ -1,0 +1,26 @@
+
+//===|   Dependencies   |=====================================================//
+
+// @import '../test-suite';
+// @import '../string/split';
+
+//===|   Definitions   |======================================================//
+
+@function string__replace( $string, $old, $new ) {
+	$parts: string__split( $string, $old );
+	$new-list: list__join( $parts, $new );
+	@return list__insert( add, $new-list );
+}
+
+//===|   Tests / Examples   |=================================================//
+
+@include suite(
+	test( 'string__replace > initial',
+		string__replace( "ciao", 'c', 'C' ),
+		'Ciao'
+	)
+	test( 'string__replace > middle',
+		string__replace( "ciao", 'i', '1' ),
+		'c1ao'
+	)
+);

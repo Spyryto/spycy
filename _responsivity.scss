@@ -1,0 +1,63 @@
+
+//===|   Dependencies   |=====================================================//
+
+// @import 'map-path';
+// @import 'stringify';
+
+//===|   Definitions   |======================================================//
+
+
+//   ANATOMY OF CSS
+//
+//                        property       value     property     value
+//                   ┌——————————————┐    ┌————┐    ┌———————┐    ┌——┐
+//   p > .link   {   background-color:   yellow;   font-size:   14px;   }
+//                   └—————————————————————————┘   └————————————————┘
+//                           declaration               declaration
+//   └———————┘   └——————————————————————————————————————————————————————┘
+//   selector                     declaration block
+//   └——————————————————————————————————————————————————————————————————┘
+//                                 rule
+
+$media-queries: (
+	desktop : 'screen and (min-device-width: 20cm) and (min-aspect-ratio: 1)',
+	mobile  : 'screen'
+) !default !global;
+
+@mixin on( $devices... ) {
+	@each $device in $devices {
+		@if index( $export-devices, $device ) != null {
+			$media-query: map-get( $media-queries, $device );
+			@at-root {
+				@if $media-query != null {
+					@media #{$media-query} {
+						& {
+							@content;
+						}
+					}
+				} @else {
+					& {
+						@content;
+					}
+				}
+			}
+		}
+	}
+}
+
+$export-devices: mobile desktop all !default !global;
+
+@mixin partial( $devices... ) {
+	@each $device in $devices {
+		@if index( $export-devices, $device ) != null {
+			$media-query: map-get( $media-queries, $device );
+			@if $media-query != null {
+				@media #{$media-query} {
+					@content;
+				}
+			} @else {
+				@content
+			}
+		}
+	}
+}

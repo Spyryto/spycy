@@ -1,0 +1,28 @@
+
+//===|   Dependencies   |=====================================================//
+
+// @import '../test-suite';
+
+//===|   Definitions   |======================================================//
+
+@function list__insert( $function-name, $list ) {
+	$length: length( $list );
+	@if $length == 1 {
+		@return nth( $list, 1 );
+	}
+	$accumulator: nth( $list, 1 );
+	@for $n from 2 through $length {
+		$item: nth( $list, $n );
+		$accumulator: call( $function-name, $accumulator, $item );
+	}
+	@return $accumulator;
+}
+
+//===|   Tests / Examples   |=================================================//
+
+@include suite(
+	test( 'insert',
+		list__insert( add, 1 2 3 4 5 ),
+		15
+	)
+); 

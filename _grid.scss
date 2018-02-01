@@ -1,0 +1,114 @@
+
+//===|   Dependencies   |=====================================================//
+
+// None
+
+//===|   Definitions   |======================================================//
+
+@function grid( $column-count: 12   ,
+				$column-width: 78px ,
+				$gutter-width: 30px ,
+				$margin-width:  0px ) {
+
+	$gutter-count: $column-count - 1;
+
+	$whole-width : ($column-width * $column-count) +
+				   ($gutter-width * $gutter-count) +
+				   ($margin-width * 2);
+
+	@return (
+		column-width : $column-width / $whole-width * 100%,
+		column-count : $column-count ,
+		gutter-width : $gutter-width / $whole-width * 100%,
+		gutter-count : $gutter-count ,
+		margin-width : $margin-width / $whole-width * 100%,
+	);
+}
+
+@mixin row() {
+
+	&::after {
+		content: "";
+		display: block;
+		clear: both;
+	}
+
+}
+
+@function column( $n, $grid, $first-child: false, $last-child: false ) {
+	// we have all the data we need in grid
+	$column-width: map-get( $grid, column-width );
+	$gutter-width: map-get( $grid, gutter-width );
+	$margin-width: map-get( $grid, margin-width );
+
+	$column: (
+		width: ( $column-width * $n ) +
+		       ( $gutter-width * ($n - 1)),
+		float: left,
+		margin-left : if( $first-child, $margin-width, 0 ),
+		margin-right: if( $last-child, $margin-width, $gutter-width )
+	);
+	@return $column;
+}
+
+@mixin column( $n, $grid, $first-child: false, $last-child: false ) {
+	// we have all the data we need in grid
+
+	$margin-width: map-get( $grid, margin-width );
+	$column: column( $n, $grid, $first-child, $last-child );
+
+	width: map-get( $column, width );
+	float: map-get( $column, float );
+	margin-left : map-get( $column, margin-left );
+	margin-right: map-get( $column, margin-right );
+
+	@if not $first-child {
+		&:first-child {
+			margin-left : $margin-width;
+		}
+	}
+
+	@if not $last-child {
+		&:last-child {
+			margin-right: $margin-width;
+		}
+	}
+}
+
+@mixin row--element( $grid ) {
+	// we have all the data we need in grid
+	$margin-width: map-get( $grid, margin-width );
+
+	margin-left : $margin-width;
+	margin-right: $margin-width;
+}
+
+//===|   Tests / Examples   |=================================================//
+
+
+@mixin test__grid() {
+	grid-of-12: inspect( $grid-of-12 );
+
+	$column-count: map-get( $grid-of-12, column-count );
+	$column-width: map-get( $grid-of-12, column-width );
+	$gutter-width: map-get( $grid-of-12, gutter-width );
+	$margin-width: map-get( $grid-of-12, margin-width );
+
+	$gutter-count: $column-count - 1;
+
+	whole-width : ($column-width * $column-count) +
+				  ($gutter-width * $gutter-count) +
+				  ($margin-width * 2);
+}
+
+// Result:
+//
+// content: (
+//     column-width: 5.7101%,
+//     column-count: 12,
+//     gutter-width: 2.19619%,
+//     gutter-count: 11,
+//     margin-width: 3.66032%
+// );
+
+

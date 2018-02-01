@@ -1,0 +1,91 @@
+
+//===|   Dependencies   |=====================================================//
+
+// None
+
+//===|   Definition   |=======================================================//
+
+$log-enabled: false !default !global;
+
+$test-suite: () !global;
+$test-suite__messages: (
+	true  : 'PASSED',
+	false : 'FAILED ***'
+);
+$test-suite__stop-mixin    : false;
+$test-suite__stop-function : false;
+
+@mixin suite__results() {
+	@if mixin-exists( 'log' ) {
+		@each $test in $test-suite {
+			$title          : map-get( $test, title );
+			$passed         : map-get( $test, passed );
+			$expected-value : map-get( $test, expected-value );
+			$actual-value   : map-get( $test, actual-value );
+			@if not $test-suite__stop-mixin {
+				@include log( $title ) {
+					test: unquote( map-get( $test-suite__messages, $passed ));
+					@if not $passed {
+						expected-value : inspect( $expected-value );
+						actual-value   : inspect( $actual-value );
+					}
+				}
+			}
+			@if not $passed {
+				$test-suite__stop-mixin: true !global;
+			}
+		}
+		$test-suite: () !global;
+	}
+
+}
+
+@mixin suite( $args... ) {
+	@include suite__results;
+	// throw away everything else
+	@content
+}
+
+@function test__display( $title, $passed, $expected, $actual ) {
+	@if not $log-enabled {
+		 @return $passed;
+	}
+
+
+	$message: unquote( map-get( $test-suite__messages, $passed ));
+	@debug 'TEST ' + $title + ' ' + $message;
+	@if not $passed {
+		@warn 'Expected value was ' + inspect( $expected ) +
+			' instead of ' + inspect( $actual );
+	}
+
+	@return $passed;
+}
+
+@function test( $title, $actual-value, $expected-value ) {    
+	$result: null;
+	$passed: $actual-value == $expected-value;
+
+
+	$test: ((
+		title          : $title                     ,
+		passed         : $passed                    ,
+		expected-value : inspect( $expected-value ) ,
+		actual-value   : inspect( $actual-value )
+	));
+	$test-suite: append( $test-suite, $test ) !global;
+	@if not $test-suite__stop-function {
+		$result: test__display( $title, $passed, $expected-value, $actual-value );
+	}
+	@if not $passed {
+		$test-suite__stop-function: true !global;
+	}
+	@return $result;
+}
+
+//===|   Tests / Examples   |=================================================//
+
+@include suite(
+	test( 'test suite > trivial test', 1, 1 ),
+	test( 'test suite > simple addition', 1 + 2 + 3, 6 )
+);

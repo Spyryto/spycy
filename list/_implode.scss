@@ -1,0 +1,23 @@
+
+//===|   Dependencies   |=====================================================//
+
+// @import '../test-suite';
+// @import '../list/join';
+// @import '../list/insert';
+
+//===|   Definitions   |======================================================//
+
+@function list__implode( $list, $separator ) {
+	$separated-list: list__join( $list, $separator );
+	$result: list__insert( add, $separated-list );
+	@return $result;
+}
+
+//===|   Tests / Examples   |=================================================//
+
+@include suite(
+	test( 'list__implode',
+		list__implode( 1 2 3 4 5, ',' ),
+		"1,2,3,4,5"
+	)
+);

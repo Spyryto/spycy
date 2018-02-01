@@ -1,0 +1,115 @@
+
+//===|   Dependencies   |=====================================================//
+
+// @import '../test-suite';
+// @import '../list/shift';
+
+//===|   Definitions   |======================================================//
+
+@function map__path--get( $map, $path ) {
+
+	@if length( $path ) == 0 {
+		@return $map;
+	} @else {
+		$index: nth( $path, 1 );
+		@if not map-has-key( $map, $index ) {
+			@return ();
+		}
+		$sub-map: map-get( $map, $index );
+		@return map__path( $sub-map, list__shift( $path ));
+	}
+}
+
+@function map__path--put( $map, $path, $new-value ) {
+	$length: length( $path );
+	@if $length < 1 {
+		@return $new-value;
+	} @elseif $length == 1 {
+		$index: nth( $path, 1 );
+		$sub-map: ( $index: $new-value );
+		@if $map == null {
+			$map: ();
+		}
+		@return map-merge( $map, $sub-map );
+	} @else {
+		$index: nth( $path, 1 );
+		$sub-map: map-get( $map, $index );
+		$new-sub-map: map__path--put( $sub-map, list__shift( $path ), $new-value );
+		$new-map: ( $index: $new-sub-map );
+		@return map-merge( $map, $new-map );
+	}
+}
+
+@function map__path( $map, $path: (), $new-value: null ) {
+	@if $new-value {
+		@return map__path--put( $map, $path, $new-value );
+	} @else {
+		@return map__path--get( $map, $path );
+	}
+}
+
+//===|   Tests / Examples   |=================================================//
+
+$map__path--employee: (
+	developer: (
+		first-name: 'Daniele',
+		last-name : 'Zecchin',
+	),
+	company: (
+		name   : 'Alpenite',
+		address: 'via delle Industrie',
+		city   : 'Marghera'
+	)
+);
+
+@include suite(
+
+	test( 'map__path > get from path',
+		map__path( $map__path--employee, developer first-name ),
+		'Daniele'
+	),
+
+	test( 'map__path--put > call with empty path',
+		map__path( $map__path--employee, (), ( new: map ) ),
+		( new: map )
+	),
+
+	test( 'map__path--put > change item in flat map',
+		map__path( ( first-name: 'Daniele', last-name : 'Zecchin' ), first-name, 'Spyryto' ),
+		( first-name: 'Spyryto', last-name : 'Zecchin' )
+	),
+
+	test( 'map__path > change submap',
+		map__path( $map__path--employee, developer, (
+			first-name: 'Spyryto',
+			last-name : 'Zecchin',
+		)),
+		(
+			developer: (
+				first-name: 'Spyryto',
+				last-name : 'Zecchin',
+			),
+			company: (
+				name   : 'Alpenite',
+				address: 'via delle Industrie',
+				city   : 'Marghera'
+			)
+		)
+	),
+
+	test( 'map__path > change deep item',
+		map__path( $map__path--employee, developer first-name, 'Spyryto' ),
+		(
+			developer: (
+				first-name: 'Spyryto',
+				last-name : 'Zecchin',
+			),
+			company: (
+				name   : 'Alpenite',
+				address: 'via delle Industrie',
+				city   : 'Marghera'
+			)
+		)
+	)
+
+);

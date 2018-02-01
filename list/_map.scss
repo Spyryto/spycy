@@ -1,0 +1,25 @@
+
+//===|   Dependencies   |=====================================================//
+
+// @import '../test-suite';
+
+//===|   Definitions   |======================================================//
+
+@function list__map( $function-name, $list ) {
+	$length: length( $list );
+	$new-list: ();
+	@for $n from 1 through $length {
+		$value: call( $function-name, nth( $list, $n ));
+		$new-list: append( $new-list, $value );
+	}       
+	@return $new-list;
+}
+
+//===|   Tests / Examples   |=================================================//
+
+@include suite(
+	test( 'list__map',
+		list__map( quote, a b c ),
+		( 'a' 'b' 'c' )
+	)
+); 

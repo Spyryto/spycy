@@ -1,0 +1,33 @@
+
+//===|   Dependencies   |=====================================================//
+
+// @import '../test-suite';
+
+//===|   Definitions   |======================================================//
+
+@function string__split( $string, $separator ) {
+	$separator-length: str-length( $separator );
+	$position: str-index( $string, $separator );
+	@if $position == null {
+		@return ( $string );
+	}
+	$string-head: str-slice( $string, 0, $position - 1 );
+	$string-tail: str-slice( $string, $position + $separator-length );
+	$list-head  : ( quote( $string-head ));
+	$list-tail  : string__split( $string-tail, $separator );
+	@return join( $list-head, $list-tail );
+}
+
+//===|   Tests / Examples   |=================================================//
+
+@include suite(
+	test( 'string__split > character',
+		string__split( "buongiorno", 'o' ),
+		( "bu" "ngi" "rn" "" )
+	)
+	test( 'string__split > string',
+		string__split( "key => value", '=>' ),
+		( "key " " value" )
+	)
+);
+

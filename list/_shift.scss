@@ -1,0 +1,46 @@
+
+//===|   Dependencies   |=====================================================//
+
+// @import '../test-suite';
+
+//===|   Definitions   |======================================================//
+
+@function list__shift( $list ) {
+	@if type-of( $list ) != list {
+		@return ();
+	}
+	$length: length( $list );
+	@if $length <= 1 {
+		@return ();
+	}
+	$new-list: ();
+	@for $n from 2 through $length {
+		$new-list: append( $new-list, nth( $list, $n ));
+	}
+	@return $new-list;
+}
+
+//===|   Tests / Examples   |=================================================//
+
+@include suite(
+	test( 'list__shift > simple-list',
+		list__shift( ( 1 2 3 4 5 ) ),
+		( 2 3 4 5 )
+	),
+	test( 'list__shift > non-list',
+		list__shift( 1 ),
+		()
+	),
+	test( 'list__shift > list-with-no-items',
+		list__shift( () ),
+		()
+	),
+	test( 'list__shift > list-with-1-item',
+		list__shift( ( 1, ) ),
+		()
+	),
+	test( 'list__shift > list-with-2-items',
+		list__shift( ( 1 2 ) ),
+		append( (), 2) // workaround for 1-item list
+	)
+);

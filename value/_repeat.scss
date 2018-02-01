@@ -1,0 +1,24 @@
+
+//===|   Dependencies   |=====================================================//
+
+// None
+
+//===|   Definitions   |======================================================//
+
+@function repeat( $times, $value ) {
+	$list: ();
+	@for $n from 1 through $times {
+		$list: append( $list, $value );
+	}
+	@return $list;
+}
+
+//===|   Tests / Examples   |=================================================//
+
+@include suite(
+	test( 'repeat',
+		repeat( 5, 2 ),
+		( 2 2 2 2 2 )
+	)
+); 
+

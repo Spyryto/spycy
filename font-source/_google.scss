@@ -1,0 +1,115 @@
+
+//===|   AUXILIARY FUNCTIONS   |==============================================//
+
+//---|   Definitions   |------------------------------------------------------//
+
+@function font-source__google__plusify( $identifier ) {
+	@return string__replace( $identifier, '-', '+' );
+}
+
+//---|   Tests / Examples   |-------------------------------------------------//
+
+@include suite(
+	test( 'plusify identifier',
+		font-source__google__plusify( open-sans ),
+		'open+sans'
+	)
+);
+
+//---|   Definitions   |------------------------------------------------------//
+
+@function font-source__google__format-sizes( $size-list ) {
+	@if length( $size-list ) == 1 and nth( $size-list, 1 ) == 400 {
+		@return '';
+	}
+	$size-string-list: list__map( string, $size-list );
+
+
+	@return list__implode( $size-string-list, ',' );
+
+
+	$comma-separated-list: list__join( $size-string-list, ',' );
+	$result: list__insert( add, $comma-separated-list );
+	@return $result;
+}
+
+//---|   Tests / Examples   |-------------------------------------------------//
+
+@include suite(
+	test( 'format simple default size',
+		font-source__google__format-sizes( 400 ),
+		''
+	),
+	test( 'format simple size',
+		font-source__google__format-sizes( 600 ),
+		'600'
+	),
+	test( 'format multiple sizes',
+		font-source__google__format-sizes( 400 700 ),
+		'400,700'
+	)
+);
+
+//---|   Definitions   |------------------------------------------------------//
+
+@function font-source__google__format( $font-map ) {
+	$font-face: nth( $font-map, 1 );
+	$font-weight-list: nth( $font-map, 2 );
+	$font: null;
+	$font-name : font-source__google__plusify( $font-face );
+	$weights   : font-source__google__format-sizes( $font-weight-list );
+	@if str-length( $weights ) == 0 {
+		$font: $font-name;
+	} @else {
+		$font: $font-name + ':' + $weights;
+	}
+	$quoted-font: quote( $font );
+	@return $quoted-font;    
+}
+
+//---|   Tests / Examples   |-------------------------------------------------//
+
+@include suite(
+	test( 'format font face and size',
+		font-source__google__format(( Ubuntu, 600 )),
+		"Ubuntu:600"
+	)
+);
+
+//===|   MAIN FUNCTION   |====================================================//
+
+//---|   Definitions   |------------------------------------------------------//
+
+@function font-source__google( $font-map-list ) {
+	$formatted-list: list__map( font-source__google__format, $font-map-list );
+	$result: list__implode( $formatted-list, '|' );
+	@return $result;
+}
+
+//---|   Tests / Examples   |-------------------------------------------------//
+
+@include suite(
+	test( 'Simple google font',
+		font-source__google(( Ubuntu: 400 )),
+		"Ubuntu"
+	),
+	test( 'Simple google font with complex name',
+		font-source__google(( Crimson-Text: 400 )),
+		"Crimson+Text"
+	),
+	test( 'Simple google font with sizes',
+		font-source__google(( Ubuntu: 600 )),
+		"Ubuntu:600"
+	),
+	test( 'More google fonts with sizes',
+		font-source__google(( Farsan: 400, Open-Sans: 400 700 )),
+		"Farsan|Open+Sans:400,700"
+	)
+);
+
+//===|   MIXIN   |============================================================//
+
+@mixin font-source__google( $fonts-map ) {
+	$family: font-source__google( $fonts-map );
+	@import url('https://fonts.googleapis.com/css?family=#{$family}');
+}

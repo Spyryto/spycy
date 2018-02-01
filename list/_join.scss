@@ -1,0 +1,32 @@
+
+//===|   Dependencies   |=====================================================//
+
+// @import '../test-suite';
+
+//===|   Definitions   |======================================================//
+
+@function list__join( $list, $separator ) {
+	$length: length( $list );
+	$accumulator: nth( $list, 1 );
+	@if $length == 1 {
+		@return $accumulator;
+	}
+	@for $n from 2 through $length {
+		$item: nth( $list, $n );
+		$accumulator: join( $accumulator, ( $separator, $item ));
+	}
+
+
+	@return $accumulator;
+
+}
+
+//===|   Tests / Examples   |=================================================//
+
+@include suite(
+	test( 'list__join',
+		list__join( 1 2 3, 0 ),
+		( 1, 0, 2, 0, 3 )
+	)
+);
+
